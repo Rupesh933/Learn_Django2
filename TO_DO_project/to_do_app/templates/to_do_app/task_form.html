@@ -1,0 +1,93 @@
+{% extends 'to_do_app/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0">
+                        {% if task %}✏️ Edit Task{% else %}➕ Add New Task{% endif %}
+                    </h2>
+                </div>
+                
+                <div class="card-body">
+                    <form method='post'>
+                        {% csrf_token %}
+                        
+                        <!-- Title Field -->
+                        <div class='mb-3'>
+                            <label for="id_title" class='form-label fw-bold'>Title <span class="text-danger">*</span></label>
+                            <input type="text" 
+                                   name='title' 
+                                   id="id_title" 
+                                   class='form-control' 
+                                   placeholder="Enter task title"
+                                   value="{{ task.title|default_if_none:'' }}" 
+                                   required>
+                            <small class="text-muted">Maximum 200 characters</small>
+                        </div>
+                        
+                        <!-- Description Field -->
+                        <div class='mb-3'>
+                            <label for="id_description" class='form-label fw-bold'>Description</label>
+                            <textarea name='description' 
+                                      id="id_description" 
+                                      class='form-control' 
+                                      rows="4"
+                                      placeholder="Enter task description (optional)">{{ task.description|default_if_none:'' }}</textarea>
+                            <small class="text-muted">Provide detailed information about the task</small>
+                        </div>
+                        
+                        <!-- Completed Checkbox -->
+                        <div class='mb-4'>
+                            <div class="form-check form-switch">
+                                <input type="checkbox" 
+                                       name="completed" 
+                                       id="id_completed" 
+                                       class='form-check-input' 
+                                       role="switch"
+                                       {% if task.completed %}checked{% endif %}>
+                                <label for="id_completed" class='form-check-label fw-bold'>
+                                    {% if task.completed %}✓ Task Completed{% else %}○ Mark as Complete{% endif %}
+                                </label>
+                            </div>
+                            <small class="text-muted ms-4">Check this box if the task is already done</small>
+                        </div>
+
+                        <div class='mb-3'>
+                            <label for="id_due_date" class='form-label'>Due Date</label>
+                            <input type="date" 
+                                name="due_date" 
+                                id="id_due_date" 
+                                class='form-control'
+                                value="{{ task.due_date|date:'Y-m-d' }}">
+                            <small class="text-muted">When should this task be completed?</small>
+                        </div>
+                        
+                        <!-- Action Buttons -->
+                        <div class="d-flex gap-2">
+                            <button type='submit' class="btn {% if task %}btn-warning{% else %}btn-success{% endif %} px-4">
+                                {% if task %}
+                                    🔄 Update Task
+                                {% else %}
+                                    ✓ Create Task
+                                {% endif %}
+                            </button>
+                            
+                            <a href="{% url 'to_do_app:task_list' %}" class="btn btn-secondary px-4">
+                                ❌ Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Help Text -->
+            <div class="alert alert-info mt-3 small">
+                <strong>💡 Tip:</strong> Fields marked with <span class="text-danger">*</span> are required.
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

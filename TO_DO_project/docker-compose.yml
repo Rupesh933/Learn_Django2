@@ -1,0 +1,49 @@
+services:
+  db:
+    image: postgres:17-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: todo_db
+      POSTGRES_USER: rupesh
+      POSTGRES_PASSWORD: root
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rupesh -d todo_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    environment:
+      DJANGO_ALLOWED_HOSTS: "localhost,127.0.0.1,0.0.0.0"
+      POSTGRES_DB: todo_db
+      POSTGRES_USER: rupesh
+      POSTGRES_PASSWORD: root
+      POSTGRES_HOST: db
+      POSTGRES_PORT: "5432"
+    # The app is configured to use PostgreSQL when POSTGRES_DB is present,
+    # so do not mount db.sqlite3 into the container.
+
+  pgadmin:
+    image: dpage/pgadmin4:9
+    depends_on:
+      - db
+    ports:
+      - "5050:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: rupeshrana20274@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: root
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+
+volumes:
+  postgres_data:
+  pgadmin_data:
